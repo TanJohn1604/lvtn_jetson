@@ -8,6 +8,8 @@ import time
 
 spilitdata=[0,0,0] # khung du lieu duoc gui den
 flag=1 # co dung de luan phien gui-nhan du lieu tu arduino
+
+# kich thuoc cua frame lay tu camera
 width=640
 height=480
 
