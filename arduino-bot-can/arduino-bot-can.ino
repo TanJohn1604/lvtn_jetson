@@ -24,6 +24,8 @@ pinMode(LED_BUILTIN, OUTPUT);
 
 myservo_red.attach(9); 
 myservo_blue.attach(10); 
+myservo_red.write(0);  
+myservo_blue.write(0);  
 }
 
 void receiveData(){
