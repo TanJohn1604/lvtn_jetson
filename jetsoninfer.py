@@ -21,6 +21,8 @@ net = jetson.inference.detectNet(argv=['--model=bottle-can-90/90epoch-ssd-mobile
 font=cv2.FONT_HERSHEY_SIMPLEX
 startTime =  time.time()
 dtav = 0
+def myFunc(e):
+    return e.Confidence
 
 def initConnection(port,baud):
     try:
@@ -62,14 +64,15 @@ while True:
     # -------------------- nhan dien - END -----------------------------------------
 
     # -------------------- xu ly cac vat duoc phat hien START ----------------------
-    for detection in detections:
-        # print("detected {:d} objects in image".format(detection.ClassID))
-        if(detection.Confidence>0.7):
-            cv2.rectangle(frame,(int(detection.Left),int(detection.Top)),(int(detection.Right),int(detection.Bottom)),(0,0,255),2)
-            cv2.putText(frame, str(detection.ClassID) + " = " +  str(round(detection.Confidence, 3)) , (int(detection.Left)+10,int(detection.Top)+40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
-            print(detection.Confidence)
+    if detections:
+        detections.sort(key=lambda x: x.Confidence, reverse=True)
+        if(detections[0].Confidence>0.7):
+
+            cv2.rectangle(frame,(int(detections[0].Left),int(detections[0].Top)),(int(detections[0].Right),int(detections[0].Bottom)),(0,0,255),2)
+            cv2.putText(frame, str(detections[0].ClassID) + " = " +  str(round(detections[0].Confidence, 3)) , (int(detections[0].Left)+10,int(detections[0].Top)+40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
+    # print(detections[0].Confidence)
     # -------------------- xu ly cac vat duoc phat hien END ------------------------
-    
+
     # -------------------- xuat fps START ------------------------------------------
     cv2.putText(frame,str( round(net.GetNetworkFPS())),(0,30),font,1,(0,0,255),2)
     dt = time.time() - startTime
