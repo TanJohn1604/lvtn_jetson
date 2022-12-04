@@ -21,6 +21,11 @@ net = jetson.inference.detectNet(argv=['--model=bottle-can-90/90epoch-ssd-mobile
 font=cv2.FONT_HERSHEY_SIMPLEX
 startTime =  time.time()
 dtav = 0
+
+#cac bien dung truyen thong
+check_confidence=50
+check_confidence_counter=0
+check_confidence_counter2=0
 def myFunc(e):
     return e.Confidence
 
@@ -54,6 +59,7 @@ while True:
             data = str(data, 'utf-8')
             data = data.strip('\r\n')
             spilitdata = data.split(",")
+            # print(spilitdata)
             flag=0
 
     # -------------------- nhan dien - START ---------------------------------------
@@ -66,11 +72,29 @@ while True:
     # -------------------- xu ly cac vat duoc phat hien START ----------------------
     if detections:
         detections.sort(key=lambda x: x.Confidence, reverse=True)
-        if(detections[0].Confidence>0.7):
-
+        if(detections[0].Confidence>0.5):
             cv2.rectangle(frame,(int(detections[0].Left),int(detections[0].Top)),(int(detections[0].Right),int(detections[0].Bottom)),(0,0,255),2)
             cv2.putText(frame, str(detections[0].ClassID) + " = " +  str(round(detections[0].Confidence, 3)) , (int(detections[0].Left)+10,int(detections[0].Top)+40), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
-    # print(detections[0].Confidence)
+            if detections[0].ClassID == 1:
+                check_confidence_counter2=0
+                check_confidence_counter=check_confidence_counter + 1
+                if check_confidence_counter == check_confidence:
+                    spilitdata[0] = 1
+                    check_confidence_counter = check_confidence - 1
+                print("check_confidence_counter = " +str(check_confidence_counter))
+
+            if detections[0].ClassID == 2:
+                check_confidence_counter=0
+                check_confidence_counter2=check_confidence_counter2 + 1
+                if check_confidence_counter2 == check_confidence:
+                    spilitdata[0] = 2
+                    check_confidence_counter2 = check_confidence - 1
+                print("check_confidence_counter2 = " + str(check_confidence_counter2))
+    else:
+        spilitdata[0] = 0
+        check_confidence_counter= 0
+        check_confidence_counter2=0
+    
     # -------------------- xu ly cac vat duoc phat hien END ------------------------
 
     # -------------------- xuat fps START ------------------------------------------
