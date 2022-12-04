@@ -2,6 +2,7 @@
 #define numOfValsRec 3
 #define digitsPerValRec 3
 int valsRec[numOfValsRec];
+int PrevalsRec[numOfValsRec];
 int stringLength=numOfValsRec*digitsPerValRec+1;
 int counter =0;
 bool counterStart=false;
@@ -13,19 +14,22 @@ int flag=1;
 
 
 
-Servo myservo_red;
-Servo myservo_blue;
+Servo myservo_chai;
+Servo myservo_can;
 void setup() {
-valsRec[0]=000;
-valsRec[1]=111;
-valsRec[2]=222;
+PrevalsRec[0]=valsRec[0]=000;
+PrevalsRec[1]=valsRec[1]=111;
+PrevalsRec[2]=valsRec[2]=222;
 Serial.begin(9600);
 pinMode(LED_BUILTIN, OUTPUT);
-
-myservo_red.attach(9); 
-myservo_blue.attach(10); 
-myservo_red.write(0);  
-myservo_blue.write(0);  
+pinMode(4, OUTPUT);
+pinMode(5, OUTPUT);
+digitalWrite(4, 0); 
+digitalWrite(5, 0); 
+myservo_chai.attach(9); 
+myservo_can.attach(10); 
+myservo_chai.write(0);  
+myservo_can.write(0);  
 }
 
 void receiveData(){
@@ -82,6 +86,9 @@ receiveData();
 
 //-----------------------------do something -------------------------------
 
+
+digitalWrite(4, valsRec[0]==1 ); 
+digitalWrite(5, valsRec[0]==2);
 
 //-----------------------------end do something -------------------------------
 }
