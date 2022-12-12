@@ -16,7 +16,7 @@ height=480
 # load model, bat camera
 cam=jetson.utils.gstCamera(width,height,'/dev/video0')
 # net = jetson.inference.detectNet(argv=['--model=bottle-can-90/90epoch-ssd-mobilenet.onnx', '--labels=bottle-can-90/labels.txt', '--input-blob=input_0', '--output-cvg=scores', '--output-bbox=boxes'], threshold=0.7)
-net = jetson.inference.detectNet(argv=['--model=bottle-can-3k-180epoch/ssd-mobilenet.onnx', '--labels=bottle-can-3k-180epoch/labels.txt', '--input-blob=input_0', '--output-cvg=scores', '--output-bbox=boxes'], threshold=0.7)
+net = jetson.inference.detectNet(argv=['--model=bottle-can-3k-90epoch/ssd-mobilenet.onnx', '--labels=bottle-can-3k-90epoch/labels.txt', '--input-blob=input_0', '--output-cvg=scores', '--output-bbox=boxes'], threshold=0.7)
 # cac bien cho viec xu ly framne, fps
 font=cv2.FONT_HERSHEY_SIMPLEX
 startTime =  time.time()
