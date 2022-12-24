@@ -1,0 +1,4 @@
+qt5-tools designer
+pyuic5 -x main.ui -o main.py
+
+self.mainHandle.soluongchai.setAlignment(Qt.AlignCenter)
