@@ -17,13 +17,11 @@ class MainWindow(QMainWindow):
         self.uic = Ui_MainWindow()
         self.uic.setupUi(self)
 
-        # self.uic.Button_start.clicked.connect(self.start_capture_video)
+        self.uic.Button_start.clicked.connect(self.start_capture_video)
         self.uic.Button_stop.clicked.connect(self.stop_capture_video)
 
         self.thread = {}
-        self.thread[1] = capture_video(index=1)
-        self.thread[1].start()
-        self.thread[1].signal.connect(self.show_wedcam)
+
     def closeEvent(self, event):
         self.stop_capture_video()
 
@@ -59,11 +57,10 @@ class capture_video(QThread):
         super(capture_video, self).__init__()
 
     def run(self):
-        
+        startTime = time.time()
+        dtav=0
         # cap = cv2.VideoCapture(0)  # 'D:/8.Record video/My Video.mp4'
         while True:
-            global dtav
-            global startTimer
             frame, width, height = cam.CaptureRGBA(zeroCopy=1)
             detections=net.Detect(frame, width, height)
 
@@ -94,6 +91,10 @@ class capture_video(QThread):
     def stop(self):
         print("stop threading", self.index)
         self.terminate()
+        # self.wait()
+        # self.exit()
+        # self.quit()
+
 
 
 if __name__ == "__main__":
@@ -104,7 +105,7 @@ if __name__ == "__main__":
     # cam=jetson.utils.gstCamera(width,height,'0')
     # net=jetson.inference.imageNet('googlenet')
     # net = jetson.inference.detectNet('ssd-mobilenet-v1',threshold=0.9)
-    net = jetson.inference.detectNet(argv=['--model=pretrain4_16/ssd-mobilenet.onnx', '--labels=pretrain4_16/labels.txt', '--input-blob=input_0', '--output-cvg=scores', '--output-bbox=boxes'], threshold=0.5)
+    net = jetson.inference.detectNet(argv=['--model=bottle-can-90/90epoch-ssd-mobilenet.onnx', '--labels=bottle-can-90/labels.txt', '--input-blob=input_0', '--output-cvg=scores', '--output-bbox=boxes'], threshold=0.5)
     # net = jetson.inference.detectNet('mobilenet-v1-ssd-mp-0_675.pth',threshold=0.9)
     timeMark=time.time()
     fpsFilter=0
