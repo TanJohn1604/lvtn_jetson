@@ -50,7 +50,10 @@ net = jetson.inference.detectNet(argv=['--model=bottle-can-90/90epoch-ssd-mobile
 # net = jetson.inference.detectNet('mobilenet-v1-ssd-mp-0_675.pth',threshold=0.9)
 ser = initConnection("/dev/ttyACM0", 9600)
 state = 0
+flag_trung_gian = 0
 
+check_confidence_counter1 = 0
+check_confidence_counter2 = 0
 class MainWindow(QMainWindow):
     global db
     def __init__(self):
@@ -58,7 +61,7 @@ class MainWindow(QMainWindow):
         self.uic = Ui_MainWindow()
         self.uic.setupUi(self)
 
-        self.uic.button.clicked.connect(self.start_serial_detect)
+        self.uic.button.clicked.connect(self.trung_gian)
 
         # self.firebaseConfig = {
         #     'apiKey': "AIzaSyAdQpKmaK3OMezJ42WDaZj7AKDX8pqkr1w",
@@ -89,13 +92,24 @@ class MainWindow(QMainWindow):
 
     def reset(self):
         global state
+        global check_confidence_counter1
+        global check_confidence_counter2
         state = 0
+        check_confidence_counter1 = 0
+        check_confidence_counter2 = 0
 
     def closeEvent(self, event):
         self.stop_serial_detect()
 
     def stop_serial_detect(self):
         self.thread[1].stop()
+
+    def trung_gian(self):
+        global flag_trung_gian
+        if flag_trung_gian == 0:
+            self.start_serial_detect()
+            flag_trung_gian = 1
+        self.reset()
 
     def start_serial_detect(self):
         self.thread[1] = serial_detect(index=1)
@@ -135,11 +149,12 @@ class serial_detect(QThread):
         global ser
         global db
         global state
+        global check_confidence_counter1
+        global check_confidence_counter2
         now = time.time()
         data = []
         check_confidence=50
-        check_confidence_counter1=0
-        check_confidence_counter2=0
+
         user_name = 0
         no_lon = 0
         no_chai = 0
@@ -171,13 +186,17 @@ class serial_detect(QThread):
                             no_lon = int(result.val()["lon"])
                             no_chai = int(result.val()["chai"])
                             b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
+                            self.signala.emit(b)
                         else:
                             state = 0
                             b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
-                    b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
+                            self.signala.emit(b)
+                    else:
+                        b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
+                        self.signala.emit(b)
                 else:
                     b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
-                self.signala.emit(b)
+                    self.signala.emit(b)
             if state == 1:
                 frame, width, height = cam.CaptureRGBA(zeroCopy=1)
                 detections=net.Detect(frame, width, height)
@@ -202,7 +221,7 @@ class serial_detect(QThread):
                             print("check_confidence_counter2  " + str(check_confidence_counter2))
                             if check_confidence_counter2 == 100:
                                 no_lon =no_lon +1
-                                db.child(rfid).child("chai").set(no_lon)
+                                db.child(rfid).child("lon").set(no_lon)
                                 check_confidence_counter2 = 0
                                 b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
                                 self.signala.emit(b)
@@ -212,8 +231,7 @@ class serial_detect(QThread):
                 else:
                     check_confidence_counter2 = 0
                     check_confidence_counter1 = 0
-                b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
-                self.signala.emit(b)
+
                 # # dt=time.time()-timeMark
                 # # fps=1/dt
                 # # fpsFilter=.95*fpsFilter+.05*fps
