@@ -54,6 +54,8 @@ flag_trung_gian = 0
 
 check_confidence_counter1 = 0
 check_confidence_counter2 = 0
+check_confidence = 60
+
 class MainWindow(QMainWindow):
     global db
     def __init__(self):
@@ -115,6 +117,7 @@ class MainWindow(QMainWindow):
         self.thread[1] = serial_detect(index=1)
         self.thread[1].start()
         self.thread[1].signala.connect(self.gate)
+        self.thread[1].time_left.connect(self.show_time)
         # self.uic.button.setEnabled(False)
         self.uic.trangthai.setText("Đang xữ lý")
         self.uic.trangthai.setStyleSheet("color : blue")
@@ -134,13 +137,17 @@ class MainWindow(QMainWindow):
             self.uic.trangthai.setText("Xữ lý xong")
         # if traveler
         # self.uic.trangthai.setStyleSheet("color : red")
+    def show_time(self,traveler2):
+        self.uic.label_5.setText(str(traveler2[0]))
+
 
 class serial_detect(QThread):
     signala = pyqtSignal(np.ndarray)
+    time_left = pyqtSignal(np.ndarray)
 
     def __init__(self, index):
         self.index = index
-        self.spilitdata = [0]
+        self.spilitdata = [0,0,0]
         print("start threading", self.index)
         super(serial_detect, self).__init__()
 
@@ -151,7 +158,7 @@ class serial_detect(QThread):
         global state
         global check_confidence_counter1
         global check_confidence_counter2
-        now = time.time()
+
         data = []
         check_confidence=50
 
@@ -159,9 +166,21 @@ class serial_detect(QThread):
         no_lon = 0
         no_chai = 0
         rfid = ""
+
+        timer_1 = 0
+        timer_2 = 0
+        timer_3 = 0
+        timer_4 = 0
+        timer_5 = 0
+
+
+        huong_roi = 0
+        flag_roi = 0
+        flag_ketthuc = 0
+        flag_frame_dautien = 0
         while True:
             if flag == 0:
-                self.sendData(ser, [self.spilitdata[0]], 3)
+                self.sendData(ser, [self.spilitdata[0],self.spilitdata[1],self.spilitdata[2]], 1)
             if flag == 1:
                 while ser.inWaiting() != 0:
                     data = ser.readline()
@@ -174,7 +193,7 @@ class serial_detect(QThread):
                 if data:
                     if data[0] != "0":
                         rfid = ""
-                        for i in data:
+                        for i in data[0:4]:
                             if int(i) < 100:
                                 rfid = rfid + "0" + i
                             else:
@@ -185,6 +204,7 @@ class serial_detect(QThread):
                             user_name = int(result.val()["name"])
                             no_lon = int(result.val()["lon"])
                             no_chai = int(result.val()["chai"])
+
                             b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
                             self.signala.emit(b)
                         else:
@@ -197,49 +217,79 @@ class serial_detect(QThread):
                 else:
                     b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
                     self.signala.emit(b)
-            if state == 1:
+                self.spilitdata[0] = 0
+
+            if state == 1 and  huong_roi == 0:
                 frame, width, height = cam.CaptureRGBA(zeroCopy=1)
                 detections=net.Detect(frame, width, height)
                 # print("detected {:d} objects in image".format(len(detections)))
-                if detections:
-                    detections.sort(key=lambda x: x.Confidence, reverse=True)
-                    if(detections[0].Confidence>0.5):
-                        if detections[0].ClassID == 1:
-                            check_confidence_counter2 = 0
-                            check_confidence_counter1 = check_confidence_counter1 + 1
-                            print("check_confidence_counter1  " + str(check_confidence_counter1))
-                            if check_confidence_counter1 == 100:
-                                no_chai =no_chai +1
-                                db.child(rfid).child("chai").set(no_chai)
-                                check_confidence_counter1 = 0
-                                b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
-                                self.signala.emit(b)
+                if data and data[4]=="1":
+                    if detections:
+                        
+                        if (flag_frame_dautien == 0):
+                            flag_frame_dautien = 1
+                            timer_3 = time.time()
 
-                        if detections[0].ClassID == 2:
-                            check_confidence_counter1 = 0
-                            check_confidence_counter2 = check_confidence_counter2 + 1
-                            print("check_confidence_counter2  " + str(check_confidence_counter2))
-                            if check_confidence_counter2 == 100:
-                                no_lon =no_lon +1
-                                db.child(rfid).child("lon").set(no_lon)
+                        detections.sort(key=lambda x: x.Confidence, reverse=True)
+                        if(detections[0].Confidence>0.7):
+                            if detections[0].ClassID == 1:
                                 check_confidence_counter2 = 0
-                                b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
-                                self.signala.emit(b)
+                                check_confidence_counter1 = check_confidence_counter1 + 1
+                                print("check_confidence_counter1 = " + str(check_confidence_counter1))
+                                if check_confidence_counter1 == check_confidence:
+                                    no_chai =no_chai +1
+                                    db.child(rfid).child("chai").set(no_chai)
+                                    check_confidence_counter1 = 0
+                                    huong_roi = 1
+                                    timer_1 = time.time()
+                                    b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
+                                    self.signala.emit(b)
+
+                            if detections[0].ClassID == 2:
+                                check_confidence_counter1 = 0
+                                check_confidence_counter2 = check_confidence_counter2 + 1
+                                print("check_confidence_counter2 = " + str(check_confidence_counter2))
+                                if check_confidence_counter2 == check_confidence:
+                                    no_lon =no_lon +1
+                                    db.child(rfid).child("lon").set(no_lon)
+                                    check_confidence_counter2 = 0
+                                    huong_roi = 2
+                                    timer_1 = time.time()
+                                    b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
+                                    self.signala.emit(b)
+                        else:
+                            check_confidence_counter2 = 0
+                            check_confidence_counter1 = 0
                     else:
                         check_confidence_counter2 = 0
                         check_confidence_counter1 = 0
+            
+            timer_2 = time.time()
+            # c = np.ndarray((1,), buffer=np.array([int(timer_2) % 60]), dtype=int)
+            # self.time_left.emit(c)
+            if  (flag_frame_dautien == 1) and (timer_2 - timer_3 > 2) :
+                self.spilitdata[0] = 1
+            if (huong_roi == 1 or huong_roi == 2) and (timer_2 - timer_1 > 1) and (self.spilitdata[0] == 1) and (flag_roi==0) :
+                flag_roi = 1
+                timer_4 = time.time()
+                if huong_roi==1:
+                    self.spilitdata[1] = 1
                 else:
-                    check_confidence_counter2 = 0
-                    check_confidence_counter1 = 0
+                    self.spilitdata[1] = 0
+            if (flag_roi == 1) and (timer_2 - timer_4 > 2)  and (flag_ketthuc == 0):
+                self.spilitdata[2] = 1
+                flag_ketthuc = 1
+                timer_5 = time.time()
+            if (timer_2 - timer_5 > 2) and flag_ketthuc == 1:
+                huong_roi = 0
+                flag_ketthuc = 0
+                flag_roi = 0
+                flag_frame_dautien = 0
+                self.spilitdata[0] = 0
+                self.spilitdata[1] = 0
+                self.spilitdata[2] = 0
 
-                # # dt=time.time()-timeMark
-                # # fps=1/dt
-                # # fpsFilter=.95*fpsFilter+.05*fps
-                # # timeMark=time.time()
 
-                # frame=jetson.utils.cudaToNumpy(frame,width,height,4)
-                # frame=cv2.cvtColor(frame, cv2.COLOR_RGBA2BGR).astype(np.uint8)
-                # cv2.imshow('nanoCam', frame)
 
 
 

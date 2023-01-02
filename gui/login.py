@@ -97,12 +97,14 @@ class Ui_MainWindow(object):
         font.setPointSize(14)
         self.button_2.setFont(font)
         self.button_2.setObjectName("button_2")
-        self.button_3 = QtWidgets.QPushButton(self.centralwidget)
-        self.button_3.setGeometry(QtCore.QRect(230, 20, 151, 41))
+        self.label_5 = QtWidgets.QLabel(self.centralwidget)
+        self.label_5.setGeometry(QtCore.QRect(100, 480, 231, 41))
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.button_3.setFont(font)
-        self.button_3.setObjectName("button_3")
+        self.label_5.setFont(font)
+        self.label_5.setLineWidth(1)
+        self.label_5.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_5.setObjectName("label_5")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -127,7 +129,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "Số lượng lon"))
         self.soluonglon.setText(_translate("MainWindow", "TextLabel"))
         self.button_2.setText(_translate("MainWindow", "PushButton_2"))
-        self.button_3.setText(_translate("MainWindow", "PushButton_3"))
+        self.label_5.setText(_translate("MainWindow", "Số lượng chai"))
 
 
 if __name__ == "__main__":
