@@ -225,13 +225,11 @@ class serial_detect(QThread):
                 # print("detected {:d} objects in image".format(len(detections)))
                 if data and data[4]=="1":
                     if detections:
-                        
-                        if (flag_frame_dautien == 0):
-                            flag_frame_dautien = 1
-                            timer_3 = time.time()
-
                         detections.sort(key=lambda x: x.Confidence, reverse=True)
                         if(detections[0].Confidence>0.7):
+                            if (flag_frame_dautien == 0):
+                                flag_frame_dautien = 1
+                                timer_3 = time.time()
                             if detections[0].ClassID == 1:
                                 check_confidence_counter2 = 0
                                 check_confidence_counter1 = check_confidence_counter1 + 1
