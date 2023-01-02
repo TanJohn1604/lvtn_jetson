@@ -1,13 +1,18 @@
 #include <SPI.h>
 #include <MFRC522.h>
-
+#include <Servo.h>
  
 #define RST_PIN         9
 #define SS_PIN          10
 
-#define numOfValsRec 1
-#define digitsPerValRec 3
-int valsRec[numOfValsRec];
+#define numOfValsRec 3
+#define digitsPerValRec 1
+
+Servo myservo1;
+Servo myservo2;
+Servo myservo3;
+
+int valsRec[numOfValsRec]={};
 int stringLength=numOfValsRec*digitsPerValRec+1;
 int counter =0;
 bool counterStart=false;
@@ -17,10 +22,17 @@ int flag=1;
 unsigned char UID[4];
  int a=0;
 MFRC522 mfrc522(SS_PIN, RST_PIN);
-
+int buttonState=0;
 void setup() 
 {
-//   pinMode(LED_BUILTIN, 3);
+pinMode(2, INPUT);
+myservo1.attach(3); 
+myservo2.attach(5);
+myservo3.attach(6);
+// myservo1.write(0);
+//myservo2.write(0);
+//myservo3.write(0);
+
     Serial.begin(9600);   
 
     SPI.begin();    
@@ -81,7 +93,9 @@ if(flag==0){
 
 
 void loop() 
-{
+{  
+  buttonState = digitalRead(2);
+
 
   if ( ! mfrc522.PICC_IsNewCardPresent()) 
   { 
@@ -113,7 +127,9 @@ Serial.print(UID[1]);
 Serial.print(",");
 Serial.print(UID[2]);
 Serial.print(",");
-Serial.println(UID[3]);
+Serial.print(UID[3]);
+Serial.print(",");
+Serial.println(buttonState);
 Serial.flush();
 flag=0;
 
@@ -134,7 +150,9 @@ Serial.print(0);
 Serial.print(",");
 Serial.print(0);
 Serial.print(",");
-Serial.println(0);
+Serial.print(0);
+Serial.print(",");
+Serial.println(buttonState);
 Serial.flush();
 flag=0;
 
@@ -144,5 +162,34 @@ endloop2:;
 receiveData();
 
 //-----------------------------do something -------------------------------
+// myservo1.write(90);
+//myservo2.write(90);
+//myservo3.write(90);
+
+if(valsRec[0] == 1){
+  myservo1.write(90);
+}
+else{
+  myservo1.write(0);
+}
+
+
+if(valsRec[1] == 1){
+  myservo2.write(90);
+}
+else{
+  myservo2.write(0);
+}
+
+
+if(valsRec[2] == 1){
+  myservo3.write(90);
+}
+else{
+  myservo3.write(0);
+}
+
+
+
 
 }
