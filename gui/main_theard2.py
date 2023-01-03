@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         # self.db = self.firebase.database()
 
         self.thread = {}
-        self.uic.button_2.clicked.connect(self.reset)
+        # self.uic.button_2.clicked.connect(self.reset)
 
     def testfirebase(self):
         a = db.child("050047057077").get()
@@ -119,23 +119,29 @@ class MainWindow(QMainWindow):
         self.thread[1].signala.connect(self.gate)
         self.thread[1].time_left.connect(self.show_time)
         # self.uic.button.setEnabled(False)
-        self.uic.trangthai.setText("Đang xữ lý")
-        self.uic.trangthai.setStyleSheet("color : blue")
-    
+
     def gate(self, traveler):
         if traveler[1] == 0:
             self.uic.tenkhachhang.setText(" - ")
             self.uic.soluonglon.setText(" - ")
             self.uic.soluongchai.setText(" - ")
             self.uic.trangthai.setText("Mời chạm thẻ")
-
         else:
             self.uic.tenkhachhang.setText(str(traveler[1]))
             self.uic.soluonglon.setText(str(traveler[2]))
             self.uic.soluongchai.setText(str(traveler[3]))
+
+        if traveler[4] == 0:
+            self.uic.trangthai.setText("Mời đặt chai/lon vào")
+
+
+        if traveler[4] == 1:
+            self.uic.trangthai.setText("Đã nhận diện 1 chai")
+
+        if traveler[4] == 2:
+            self.uic.trangthai.setText("Đã nhận diện 1 lon")
+
         # self.uic.button.setEnabled(True)
-            self.uic.trangthai.setText("Xữ lý xong")
-        # if traveler
         # self.uic.trangthai.setStyleSheet("color : red")
     def show_time(self,traveler2):
         self.uic.label_5.setText(str(traveler2[0]))
@@ -175,6 +181,7 @@ class serial_detect(QThread):
 
 
         huong_roi = 0
+        flag_chot_cua = 0
         flag_roi = 0
         flag_ketthuc = 0
         flag_frame_dautien = 0
@@ -205,17 +212,17 @@ class serial_detect(QThread):
                             no_lon = int(result.val()["lon"])
                             no_chai = int(result.val()["chai"])
 
-                            b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
+                            b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,5]), dtype=int)
                             self.signala.emit(b)
                         else:
                             state = 0
-                            b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
+                            b = np.ndarray((5,), buffer=np.array([state, 0, 0, 0,4]), dtype=int)
                             self.signala.emit(b)
                     else:
-                        b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
+                        b = np.ndarray((5,), buffer=np.array([state, 0, 0, 0,4]), dtype=int)
                         self.signala.emit(b)
                 else:
-                    b = np.ndarray((4,), buffer=np.array([state, 0, 0, 0]), dtype=int)
+                    b = np.ndarray((5,), buffer=np.array([state, 0, 0, 0,4]), dtype=int)
                     self.signala.emit(b)
                 self.spilitdata[0] = 0
 
@@ -227,9 +234,9 @@ class serial_detect(QThread):
                     if detections:
                         detections.sort(key=lambda x: x.Confidence, reverse=True)
                         if(detections[0].Confidence>0.7):
-                            if (flag_frame_dautien == 0):
-                                flag_frame_dautien = 1
-                                timer_3 = time.time()
+                            # if (flag_frame_dautien == 0):
+                            #     flag_frame_dautien = 1
+                            #     timer_3 = time.time()
                             if detections[0].ClassID == 1:
                                 check_confidence_counter2 = 0
                                 check_confidence_counter1 = check_confidence_counter1 + 1
@@ -239,11 +246,14 @@ class serial_detect(QThread):
                                     db.child(rfid).child("chai").set(no_chai)
                                     check_confidence_counter1 = 0
                                     huong_roi = 1
-                                    timer_1 = time.time()
-                                    b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
+
+                                    if (flag_frame_dautien == 0):
+                                        flag_frame_dautien = 1
+                                        timer_3 = time.time()
+                                    b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
                                     self.signala.emit(b)
 
-                            if detections[0].ClassID == 2:
+                            elif detections[0].ClassID == 2:
                                 check_confidence_counter1 = 0
                                 check_confidence_counter2 = check_confidence_counter2 + 1
                                 print("check_confidence_counter2 = " + str(check_confidence_counter2))
@@ -252,37 +262,54 @@ class serial_detect(QThread):
                                     db.child(rfid).child("lon").set(no_lon)
                                     check_confidence_counter2 = 0
                                     huong_roi = 2
-                                    timer_1 = time.time()
-                                    b = np.ndarray((4,), buffer=np.array([state, user_name, no_lon, no_chai]), dtype=int)
+                                    
+                                    if (flag_frame_dautien == 0):
+                                        flag_frame_dautien = 1
+                                        timer_3 = time.time()
+                                    b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
                                     self.signala.emit(b)
+                            else:
+                                b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
+                                self.signala.emit(b)
                         else:
                             check_confidence_counter2 = 0
                             check_confidence_counter1 = 0
+                            b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
+                            self.signala.emit(b)
                     else:
                         check_confidence_counter2 = 0
                         check_confidence_counter1 = 0
-            
+                        b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
+                        self.signala.emit(b)   
+
+
             timer_2 = time.time()
             # c = np.ndarray((1,), buffer=np.array([int(timer_2) % 60]), dtype=int)
             # self.time_left.emit(c)
-            if  (flag_frame_dautien == 1) and (timer_2 - timer_3 > 2) :
+            if  (flag_chot_cua == 0) and (flag_frame_dautien == 1) and (timer_2 - timer_3 > 0.5) :
                 self.spilitdata[0] = 1
-            if (huong_roi == 1 or huong_roi == 2) and (timer_2 - timer_1 > 1) and (self.spilitdata[0] == 1) and (flag_roi==0) :
+                flag_chot_cua = 1
+                timer_1 = time.time()
+
+            if (timer_2 - timer_1 > 0.5) and (flag_chot_cua == 1) and (flag_roi == 0) :
                 flag_roi = 1
                 timer_4 = time.time()
                 if huong_roi==1:
                     self.spilitdata[1] = 1
                 else:
                     self.spilitdata[1] = 0
+                    
             if (flag_roi == 1) and (timer_2 - timer_4 > 2)  and (flag_ketthuc == 0):
                 self.spilitdata[2] = 1
                 flag_ketthuc = 1
                 timer_5 = time.time()
+
             if (timer_2 - timer_5 > 2) and flag_ketthuc == 1:
                 huong_roi = 0
                 flag_ketthuc = 0
                 flag_roi = 0
                 flag_frame_dautien = 0
+                flag_chot_cua = 0
                 self.spilitdata[0] = 0
                 self.spilitdata[1] = 0
                 self.spilitdata[2] = 0

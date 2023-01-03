@@ -185,12 +185,12 @@
      </item>
     </layout>
    </widget>
-   <widget class="QPushButton" name="button_2">
+   <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>20</y>
-      <width>151</width>
+      <x>110</x>
+      <y>190</y>
+      <width>231</width>
       <height>41</height>
      </rect>
     </property>
@@ -199,26 +199,14 @@
       <pointsize>14</pointsize>
      </font>
     </property>
-    <property name="text">
-     <string>PushButton_2</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="button_3">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>20</y>
-      <width>151</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>14</pointsize>
-     </font>
+    <property name="lineWidth">
+     <number>1</number>
     </property>
     <property name="text">
-     <string>PushButton_3</string>
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
