@@ -134,7 +134,6 @@ class MainWindow(QMainWindow):
         if traveler[4] == 0:
             self.uic.trangthai.setText("Mời đặt chai/lon vào")
 
-
         if traveler[4] == 1:
             self.uic.trangthai.setText("Đã nhận diện 1 chai")
 
@@ -144,7 +143,8 @@ class MainWindow(QMainWindow):
         # self.uic.button.setEnabled(True)
         # self.uic.trangthai.setStyleSheet("color : red")
     def show_time(self,traveler2):
-        self.uic.label_5.setText(str(traveler2[0]))
+        # self.uic.label_5.setText(str(traveler2[0]))
+        
 
 
 class serial_detect(QThread):
@@ -211,7 +211,7 @@ class serial_detect(QThread):
                             user_name = int(result.val()["name"])
                             no_lon = int(result.val()["lon"])
                             no_chai = int(result.val()["chai"])
-
+                            print("da nhan dien duoc id")
                             b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,5]), dtype=int)
                             self.signala.emit(b)
                         else:
@@ -313,6 +313,8 @@ class serial_detect(QThread):
                 self.spilitdata[0] = 0
                 self.spilitdata[1] = 0
                 self.spilitdata[2] = 0
+                b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
+                self.signala.emit(b) 
 
 
 
