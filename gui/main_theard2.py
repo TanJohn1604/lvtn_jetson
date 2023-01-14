@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.uic = Ui_MainWindow()
         self.uic.setupUi(self)
-
+        self.setFixedSize(715, 400)
         self.uic.button.clicked.connect(self.trung_gian)
 
         # self.firebaseConfig = {
@@ -133,13 +133,13 @@ class MainWindow(QMainWindow):
 
         if traveler[4] == 0:
             self.uic.trangthai.setText("Mời đặt chai/lon vào")
-
+            self.uic.button.setEnabled(True)
         if traveler[4] == 1:
             self.uic.trangthai.setText("Đã nhận diện 1 chai")
-
+            self.uic.button.setEnabled(False)
         if traveler[4] == 2:
             self.uic.trangthai.setText("Đã nhận diện 1 lon")
-
+            self.uic.button.setEnabled(False)
         # self.uic.button.setEnabled(True)
         # self.uic.trangthai.setStyleSheet("color : red")
     def show_time(self,traveler2):
