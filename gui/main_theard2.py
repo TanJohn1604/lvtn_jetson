@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
         # self.uic.trangthai.setStyleSheet("color : red")
     def show_time(self,traveler2):
         # self.uic.label_5.setText(str(traveler2[0]))
-        
+        pass
 
 
 class serial_detect(QThread):
@@ -181,11 +181,12 @@ class serial_detect(QThread):
 
 
         huong_roi = 0
-        flag_chot_cua = 0
+        # flag_chot_cua = 0
         flag_roi = 0
         flag_ketthuc = 0
         flag_frame_dautien = 0
         while True:
+
             if flag == 0:
                 self.sendData(ser, [self.spilitdata[0],self.spilitdata[1],self.spilitdata[2]], 1)
             if flag == 1:
@@ -230,7 +231,7 @@ class serial_detect(QThread):
                 frame, width, height = cam.CaptureRGBA(zeroCopy=1)
                 detections=net.Detect(frame, width, height)
                 # print("detected {:d} objects in image".format(len(detections)))
-                if data and data[4]=="1":
+                if data :
                     if detections:
                         detections.sort(key=lambda x: x.Confidence, reverse=True)
                         if(detections[0].Confidence>0.7):
@@ -286,21 +287,21 @@ class serial_detect(QThread):
             timer_2 = time.time()
             # c = np.ndarray((1,), buffer=np.array([int(timer_2) % 60]), dtype=int)
             # self.time_left.emit(c)
-            if  (flag_chot_cua == 0) and (flag_frame_dautien == 1) and (timer_2 - timer_3 > 0.5) :
-                self.spilitdata[0] = 1
-                flag_chot_cua = 1
-                timer_1 = time.time()
+            # if  (flag_chot_cua == 0) and (flag_frame_dautien == 1) and (timer_2 - timer_3 > 0.5) :
+            #     self.spilitdata[0] = 1
+            #     flag_chot_cua = 1
+            #     timer_1 = time.time()
 
-            if (timer_2 - timer_1 > 0.5) and (flag_chot_cua == 1) and (flag_roi == 0) :
+            if (timer_2 - timer_3 > 0.5)  and (flag_roi == 0) and (flag_frame_dautien == 1) :
                 flag_roi = 1
                 timer_4 = time.time()
                 if huong_roi==1:
-                    self.spilitdata[1] = 1
+                    self.spilitdata[0] = 1
                 else:
-                    self.spilitdata[1] = 0
+                    self.spilitdata[0] = 0
                     
             if (flag_roi == 1) and (timer_2 - timer_4 > 2)  and (flag_ketthuc == 0):
-                self.spilitdata[2] = 1
+                self.spilitdata[1] = 1
                 flag_ketthuc = 1
                 timer_5 = time.time()
 
@@ -309,12 +310,12 @@ class serial_detect(QThread):
                 flag_ketthuc = 0
                 flag_roi = 0
                 flag_frame_dautien = 0
-                flag_chot_cua = 0
+                # flag_chot_cua = 0
                 self.spilitdata[0] = 0
                 self.spilitdata[1] = 0
                 self.spilitdata[2] = 0
                 b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
-                self.signala.emit(b) 
+                self.signala.emit(b)
 
 
 
