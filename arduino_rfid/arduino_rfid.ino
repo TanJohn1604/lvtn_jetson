@@ -127,9 +127,9 @@ Serial.print(UID[1]);
 Serial.print(",");
 Serial.print(UID[2]);
 Serial.print(",");
-Serial.print(UID[3]);
-Serial.print(",");
-Serial.println(buttonState);
+Serial.println(UID[3]);
+//Serial.print(",");
+//Serial.println(buttonState);
 Serial.flush();
 flag=0;
 
@@ -150,9 +150,9 @@ Serial.print(0);
 Serial.print(",");
 Serial.print(0);
 Serial.print(",");
-Serial.print(0);
-Serial.print(",");
-Serial.println(buttonState);
+Serial.println(0);
+//Serial.print(",");
+//Serial.println(buttonState);
 Serial.flush();
 flag=0;
 
@@ -181,13 +181,13 @@ else{
   myservo2.write(0);
 }
 
-
-if(valsRec[2] == 1){
-  myservo3.write(90);
-}
-else{
-  myservo3.write(0);
-}
+//
+//if(valsRec[2] == 1){
+//  myservo3.write(90);
+//}
+//else{
+//  myservo3.write(0);
+//}
 
 
 
