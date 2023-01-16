@@ -297,7 +297,7 @@ class serial_detect(QThread):
                 timer_4 = time.time()
                 if huong_roi==1:
                     self.spilitdata[0] = 1
-                else:
+                elif huong_roi==2:
                     self.spilitdata[0] = 0
                     
             if (flag_roi == 1) and (timer_2 - timer_4 > 2)  and (flag_ketthuc == 0):
@@ -311,9 +311,9 @@ class serial_detect(QThread):
                 flag_roi = 0
                 flag_frame_dautien = 0
                 # flag_chot_cua = 0
-                self.spilitdata[0] = 0
+                # self.spilitdata[0] = 0
                 self.spilitdata[1] = 0
-                self.spilitdata[2] = 0
+                # self.spilitdata[2] = 0
                 b = np.ndarray((5,), buffer=np.array([state, user_name, no_lon, no_chai,huong_roi]), dtype=int)
                 self.signala.emit(b)
 
