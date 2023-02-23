@@ -134,10 +134,10 @@ class MainWindow(QMainWindow):
         if traveler[4] == 0:
             self.uic.trangthai.setText("Mời đặt chai/lon vào")
             self.uic.button.setEnabled(True)
-        if traveler[4] == 1:
+        if traveler[4] == 2:
             self.uic.trangthai.setText("Đã nhận diện 1 chai")
             self.uic.button.setEnabled(False)
-        if traveler[4] == 2:
+        if traveler[4] == 1:
             self.uic.trangthai.setText("Đã nhận diện 1 lon")
             self.uic.button.setEnabled(False)
         # self.uic.button.setEnabled(True)
@@ -166,7 +166,7 @@ class serial_detect(QThread):
         global check_confidence_counter2
 
         data = []
-        check_confidence=50
+        check_confidence=20
 
         user_name = 0
         no_lon = 0
@@ -225,7 +225,7 @@ class serial_detect(QThread):
                 else:
                     b = np.ndarray((5,), buffer=np.array([state, 0, 0, 0,4]), dtype=int)
                     self.signala.emit(b)
-                self.spilitdata[0] = 0
+                # self.spilitdata[0] = 0
 
             if state == 1 and  huong_roi == 0:
                 frame, width, height = cam.CaptureRGBA(zeroCopy=1)
@@ -246,7 +246,7 @@ class serial_detect(QThread):
                                     no_chai =no_chai +1
                                     db.child(rfid).child("chai").set(no_chai)
                                     check_confidence_counter1 = 0
-                                    huong_roi = 1
+                                    huong_roi = 2
 
                                     if (flag_frame_dautien == 0):
                                         flag_frame_dautien = 1
@@ -262,7 +262,7 @@ class serial_detect(QThread):
                                     no_lon =no_lon +1
                                     db.child(rfid).child("lon").set(no_lon)
                                     check_confidence_counter2 = 0
-                                    huong_roi = 2
+                                    huong_roi = 1
                                     
                                     if (flag_frame_dautien == 0):
                                         flag_frame_dautien = 1
