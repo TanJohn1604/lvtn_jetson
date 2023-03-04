@@ -8,9 +8,10 @@
 #define numOfValsRec 3
 #define digitsPerValRec 1
 
-Servo myservo1;
-Servo myservo2;
-Servo myservo3;
+Servo servo_roi;//94 to 10
+Servo servo_huong;//90 to 170
+
+
 
 int valsRec[numOfValsRec]={};
 int stringLength=numOfValsRec*digitsPerValRec+1;
@@ -26,40 +27,24 @@ int buttonState=0;
 void setup() 
 {
 pinMode(2, INPUT);
-myservo1.attach(3); 
-myservo2.attach(5);
-myservo3.attach(6);
-// myservo1.write(0);
-//myservo2.write(0);
-//myservo3.write(0);
+servo_roi.attach(3); 
+
+
+servo_roi.write(94);
+delay(5000);
+servo_huong.attach(5);
+servo_huong.write(90);
+
+
 
     Serial.begin(9600);   
 
     SPI.begin();    
     mfrc522.PCD_Init();
-//    cli();//stop interrupts
-//
-// 
-//    TCCR1A = 0;// set entire TCCR1A register to 0
-//  TCCR1B = 0;// same for TCCR1B
-//  TCNT1  = 0;//initialize counter value to 0
-//  // set compare match register for 1hz increments
-//  OCR1A = 15624;// = (16*10^6) / (1*1024) - 1 (must be <65536)
-//  // turn on CTC mode
-//  TCCR1B |= (1 << WGM12);
-//  // Set CS12 and CS10 bits for 1024 prescaler
-//  TCCR1B |= (1 << CS12) | (1 << CS10);  
-//  // enable timer compare interrupt
-//  TIMSK1 |= (1 << OCIE1A);
-//
-//  
-//  sei();//allow interrupts
+
 
 }
-//ISR(TIMER1_COMPA_vect){//timer1 interrupt 1Hz toggles pin 13 (LED)
-//
-//  digitalWrite(3, a=!a); 
-//}
+
 void receiveData(){
 if(flag==0){
  
@@ -127,9 +112,9 @@ Serial.print(UID[1]);
 Serial.print(",");
 Serial.print(UID[2]);
 Serial.print(",");
-Serial.print(UID[3]);
-Serial.print(",");
-Serial.println(buttonState);
+Serial.println(UID[3]);
+//Serial.print(",");
+//Serial.println(buttonState);
 Serial.flush();
 flag=0;
 
@@ -150,9 +135,9 @@ Serial.print(0);
 Serial.print(",");
 Serial.print(0);
 Serial.print(",");
-Serial.print(0);
-Serial.print(",");
-Serial.println(buttonState);
+Serial.println(0);
+//Serial.print(",");
+//Serial.println(buttonState);
 Serial.flush();
 flag=0;
 
@@ -162,33 +147,22 @@ endloop2:;
 receiveData();
 
 //-----------------------------do something -------------------------------
-// myservo1.write(90);
-//myservo2.write(90);
-//myservo3.write(90);
-
+//
+//
 if(valsRec[0] == 1){
-  myservo1.write(90);
+ servo_huong.write(90);
 }
 else{
-  myservo1.write(0);
+ servo_huong.write(170);
 }
 
 
 if(valsRec[1] == 1){
-  myservo2.write(90);
+ servo_roi.write(10);
 }
 else{
-  myservo2.write(0);
+ servo_roi.write(94);
 }
-
-
-if(valsRec[2] == 1){
-  myservo3.write(90);
-}
-else{
-  myservo3.write(0);
-}
-
 
 
 
